@@ -1,4 +1,4 @@
-# AntiInsideTerrainViolation
+# Anti Inside Terrain Violation
 
 Handles antihack InsideTerrain violations by teleporting players to a specified coordinate. Useful for custom maps / bad procgen. 
 
