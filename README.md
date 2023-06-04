@@ -1,4 +1,4 @@
-# AntiInsideTerrainViolation
+# Anti-Inside Terrain Violation
 
 Handles antihack InsideTerrain violations by teleporting players to a specified coordinate. Useful for custom maps / bad procgen. 
 
@@ -14,7 +14,7 @@ Handles antihack InsideTerrain violations by teleporting players to a specified 
 1. Download the latest release.
 2. Extract the contents into your `oxide/plugins` directory of your Rust server.
 3. Start or restart your Rust server.
-4. IMPORTANT: Configure the SafeLocation coordinate in the newly generated configuration file and make any other desired modifications.
+4. **IMPORTANT** Configure the SafeLocation coordinate in the newly generated configuration file and make any other desired modifications.
 5. Reload the plugin in the server console using the command `o.reload AntiInsideTerrainViolation` for the changes to take effect.
 
 ## Configuration
