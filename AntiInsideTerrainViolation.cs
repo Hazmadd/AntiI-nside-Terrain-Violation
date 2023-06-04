@@ -100,7 +100,7 @@ namespace Oxide.Plugins
 
         void HandleInsideTerrainViolation(BasePlayer player)
         {
-            if (safeLocation == null)
+            if (safeLocation == Vector3.zero)
             {
                 Puts("Error: Safe location not set!");
                 return;
@@ -116,7 +116,7 @@ namespace Oxide.Plugins
                 .Replace("{player}", player.displayName)
                 .Replace("{playerID}", player.UserIDString)
                 .Replace("{position}", violationLocation);
-            LogToConsole(logMessage);
+            Puts(logMessage);
         }
     }
 }
