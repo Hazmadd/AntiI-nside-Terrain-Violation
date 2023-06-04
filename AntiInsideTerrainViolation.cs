@@ -7,7 +7,7 @@ using Oxide.Core.Plugins;
 
 namespace Oxide.Plugins
 {
-    [Info("AntiInsideTerrainViolation", "Hazmad", "1.2.2")]
+    [Info("AntiInsideTerrainViolation", "Hazmad", "1.2.3")]
     [Description("Teleports players to a safe location when they violate antihack InsideTerrain.")]
     class AntiInsideTerrainViolation : RustPlugin
     {
@@ -128,7 +128,7 @@ namespace Oxide.Plugins
 
         void SendDiscordReport(BasePlayer player, string violationLocation)
         {
-            Puts("Discord Webhook functionality is not available without DiscordWebhooks.cs plugin.");
+            Puts("Discord Webhook functionality is not available without the required plugin.");
         }
     }
 }
