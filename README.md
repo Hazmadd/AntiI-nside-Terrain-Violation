@@ -7,7 +7,7 @@ Handles antihack InsideTerrain violations by teleporting players to a specified 
 - Teleports players to a safe location upon InsideTerrain violation.
 - Sends chat messages to players notifying them of the violation.
 - Logs the violation to the server console.
-- Supports integration with Discord webhooks to send violation reports.
+~~- Supports integration with Discord webhooks to send violation reports.~~
 
 ## Installation
 
