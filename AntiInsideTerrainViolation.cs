@@ -8,7 +8,7 @@ using Oxide.Ext.DiscordWebhooks;
 
 namespace Oxide.Plugins
 {
-    [Info("AntiInsideTerrainViolation", "Hazmad", "1.0.0")]
+    [Info("AntiInsideTerrainViolation", "Hazmad", "1.2.1")]
     [Description("Teleports players to a safe location when they violate antihack InsideTerrain.")]
     class AntiInsideTerrainViolation : RustPlugin
     {
