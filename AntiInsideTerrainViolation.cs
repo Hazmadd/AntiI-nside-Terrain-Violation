@@ -7,7 +7,7 @@ using Oxide.Core.Plugins;
 
 namespace Oxide.Plugins
 {
-    [Info("AntiInsideTerrainViolation", "Hazmad", "1.3.0")]
+    [Info("AntiInsideTerrainViolation", "Hazmad", "1.3.1")]
     [Description("Teleports players to a safe location when they violate antihack InsideTerrain.")]
     class AntiInsideTerrainViolation : RustPlugin
     {
@@ -54,13 +54,12 @@ namespace Oxide.Plugins
             {
                 Puts(
                     "Attention! Be aware that you have not specified a default secure location in the configuration file. "
-                        + "Unless you have a deliberate intention for this, it could lead to players being unexpectedly teleported to hazardous areas. "
-                        + "It is essential to input appropriate coordinates for a safe zone to prevent any potential risks."
+                        + "This plugin will not function unless you configure a coordinate for player teleport. "
                 );
             }
         }
 
-        T GetConfig<T>(string key, T defaultValue = default)
+        T GetConfig<T>(string key, T defaultValue = default(T))
         {
             if (config[key] == null)
             {
@@ -86,7 +85,9 @@ namespace Oxide.Plugins
                     "antiinsideterrainviolation.bypass"
                 )
             )
+            {
                 return null;
+            }
 
             if (type == AntiHackType.InsideTerrain)
             {
@@ -99,6 +100,12 @@ namespace Oxide.Plugins
 
         void HandleInsideTerrainViolation(BasePlayer player)
         {
+            if (safeLocation == null)
+            {
+                Puts("Error: Safe location not set!");
+                return;
+            }
+
             player.Teleport(safeLocation);
 
             player.ChatMessage(chatMessage);
