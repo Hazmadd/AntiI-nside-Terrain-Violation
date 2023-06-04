@@ -7,7 +7,7 @@ using Oxide.Core.Plugins;
 
 namespace Oxide.Plugins
 {
-    [Info("AntiInsideTerrainViolation", "Hazmad", "1.2.3")]
+    [Info("AntiInsideTerrainViolation", "Hazmad", "1.3.0")]
     [Description("Teleports players to a safe location when they violate antihack InsideTerrain.")]
     class AntiInsideTerrainViolation : RustPlugin
     {
@@ -16,22 +16,15 @@ namespace Oxide.Plugins
 
         private string chatMessage;
         private string consoleLogMessage;
-        private bool useDiscordWebhook;
-        private string discordWebhookURL;
-        private string discordWebhookMessage;
 
         protected override void LoadDefaultConfig()
         {
             Config["SafeLocation"] = "0 0 0";
-            Config["UseDiscordWebhook"] = false;
 
             Config["ChatMessage"] =
                 "Invalid terrain entry! You have been relocated to a secure area.";
             Config["ConsoleLogMessage"] =
                 "Antihack violation: Player '{player}' ({playerID}) was teleported to a safe location. Violation Location: {position}";
-            Config["DiscordWebhookURL"] = "";
-            Config["DiscordWebhookMessage"] =
-                "Antihack Violation\nPlayer: {player} ({playerID})\nViolation Location: {position}";
 
             SaveConfig();
         }
@@ -48,12 +41,8 @@ namespace Oxide.Plugins
             try
             {
                 safeLocation = GetConfig<Vector3>("SafeLocation");
-                useDiscordWebhook = GetConfig<bool>("UseDiscordWebhook");
-                discordWebhookURL = GetConfig<string>("DiscordWebhookURL");
-
                 chatMessage = GetConfig<string>("ChatMessage");
                 consoleLogMessage = GetConfig<string>("ConsoleLogMessage");
-                discordWebhookMessage = GetConfig<string>("DiscordWebhookMessage");
             }
             catch
             {
@@ -121,14 +110,6 @@ namespace Oxide.Plugins
                 .Replace("{playerID}", player.UserIDString)
                 .Replace("{position}", violationLocation);
             LogToConsole(logMessage);
-
-            if (useDiscordWebhook && !string.IsNullOrEmpty(discordWebhookURL))
-                SendDiscordReport(player, violationLocation);
-        }
-
-        void SendDiscordReport(BasePlayer player, string violationLocation)
-        {
-            Puts("Discord Webhook functionality is not available without the required plugin.");
         }
     }
 }
