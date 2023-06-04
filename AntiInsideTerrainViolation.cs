@@ -7,7 +7,7 @@ using Oxide.Core.Plugins;
 
 namespace Oxide.Plugins
 {
-    [Info("AntiInsideTerrainViolation", "Hazmad", "1.3.1")]
+    [Info("AntiInsideTerrainViolation", "Hazmad", "1.4.0")]
     [Description("Teleports players to a safe location when they violate antihack InsideTerrain.")]
     class AntiInsideTerrainViolation : RustPlugin
     {
@@ -92,7 +92,7 @@ namespace Oxide.Plugins
             if (type == AntiHackType.InsideTerrain)
             {
                 HandleInsideTerrainViolation(player);
-                return true; // Handle default antihack behavior
+                return false; // Nullify the default antihack behavior
             }
 
             return null;
@@ -100,7 +100,7 @@ namespace Oxide.Plugins
 
         void HandleInsideTerrainViolation(BasePlayer player)
         {
-            if (safeLocation == Vector3.zero)
+            if (safeLocation == null)
             {
                 Puts("Error: Safe location not set!");
                 return;
@@ -116,7 +116,7 @@ namespace Oxide.Plugins
                 .Replace("{player}", player.displayName)
                 .Replace("{playerID}", player.UserIDString)
                 .Replace("{position}", violationLocation);
-            Puts(logMessage);
+            LogToConsole(logMessage);
         }
     }
 }
