@@ -4,17 +4,15 @@ using UnityEngine;
 using Oxide.Core;
 using Oxide.Core.Configuration;
 using Oxide.Core.Plugins;
-using Oxide.Ext.DiscordWebhooks;
 
 namespace Oxide.Plugins
 {
-    [Info("AntiInsideTerrainViolation", "Hazmad", "1.2.1")]
+    [Info("AntiInsideTerrainViolation", "Hazmad", "1.2.2")]
     [Description("Teleports players to a safe location when they violate antihack InsideTerrain.")]
     class AntiInsideTerrainViolation : RustPlugin
     {
         private DynamicConfigFile config;
         private Vector3 safeLocation;
-        private DiscordWebhooks discord;
 
         private string chatMessage;
         private string consoleLogMessage;
@@ -41,7 +39,6 @@ namespace Oxide.Plugins
         void Init()
         {
             config = Interface.Oxide.DataFileSystem.GetFile("antiinsideterrainviolation");
-            discord = GetLibrary<DiscordWebhooks>();
 
             LoadConfig();
         }
@@ -131,15 +128,7 @@ namespace Oxide.Plugins
 
         void SendDiscordReport(BasePlayer player, string violationLocation)
         {
-            var discordMessage = new DiscordWebhooks.Message
-            {
-                content = discordWebhookMessage
-                    .Replace("{player}", player.displayName)
-                    .Replace("{playerID}", player.UserIDString)
-                    .Replace("{position}", violationLocation)
-            };
-
-            discord.SendMessage(discordWebhookURL, discordMessage);
+            Puts("Discord Webhook functionality is not available without DiscordWebhooks.cs plugin.");
         }
     }
 }
