@@ -7,7 +7,7 @@ using Oxide.Core.Plugins;
 
 namespace Oxide.Plugins
 {
-    [Info("AntiInsideTerrainViolation", "Hazmad", "1.4.2")]
+    [Info("AntiInsideTerrainViolation", "Hazmad", "1.4.3")]
     [Description("Teleports players to a safe location when they violate antihack InsideTerrain.")]
     class AntiInsideTerrainViolation : RustPlugin
     {
@@ -112,6 +112,9 @@ namespace Oxide.Plugins
                     }
                 }
             );
+
+            // Refresh the client to update hostility timer
+            player.ClientRPCPlayer(null, player, "ForceUpdateHostility");
 
             player.ChatMessage(chatMessage);
 
