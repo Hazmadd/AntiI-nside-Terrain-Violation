@@ -7,7 +7,7 @@ using Oxide.Core.Plugins;
 
 namespace Oxide.Plugins
 {
-    [Info("AntiInsideTerrainViolation", "Hazmad", "1.4.0")]
+    [Info("AntiInsideTerrainViolation", "Hazmad", "1.4.1")]
     [Description("Teleports players to a safe location when they violate antihack InsideTerrain.")]
     class AntiInsideTerrainViolation : RustPlugin
     {
@@ -40,9 +40,9 @@ namespace Oxide.Plugins
         {
             try
             {
-                safeLocation = GetConfig<Vector3>("SafeLocation");
-                chatMessage = GetConfig<string>("ChatMessage");
-                consoleLogMessage = GetConfig<string>("ConsoleLogMessage");
+                safeLocation = ParseVector3(Config["SafeLocation"].ToString());
+                chatMessage = Config["ChatMessage"].ToString();
+                consoleLogMessage = Config["ConsoleLogMessage"].ToString();
             }
             catch
             {
@@ -54,7 +54,7 @@ namespace Oxide.Plugins
             {
                 Puts(
                     "Attention! Be aware that you have not specified a default secure location in the configuration file. "
-                        + "This plugin will not function unless you configure a coordinate for player teleport. "
+                    + "This plugin will not function unless you configure a coordinate for player teleport. "
                 );
             }
         }
@@ -72,23 +72,10 @@ namespace Oxide.Plugins
 
         void OnServerInitialized()
         {
-            permission.RegisterPermission("antiinsideterrainviolation.bypass", this);
         }
 
         object OnPlayerViolation(BasePlayer player, AntiHackType type)
         {
-            if (
-                player == null
-                || player.IsAdmin
-                || permission.UserHasPermission(
-                    player.UserIDString,
-                    "antiinsideterrainviolation.bypass"
-                )
-            )
-            {
-                return null;
-            }
-
             if (type == AntiHackType.InsideTerrain)
             {
                 HandleInsideTerrainViolation(player);
@@ -100,13 +87,26 @@ namespace Oxide.Plugins
 
         void HandleInsideTerrainViolation(BasePlayer player)
         {
-            if (safeLocation == null)
+            if (safeLocation == Vector3.zero)
             {
                 Puts("Error: Safe location not set!");
                 return;
             }
 
-            player.Teleport(safeLocation);
+            // Put the player to sleep
+            player.SetPlayerFlag(BasePlayer.PlayerFlags.Sleeping, true);
+
+            // Teleport the player to the safe location
+            player.MovePosition(safeLocation);
+
+            // Wake up the player after a short delay
+            timer.Once(2f, () =>
+            {
+                if (player.IsSleeping())
+                {
+                    player.SetPlayerFlag(BasePlayer.PlayerFlags.Sleeping, false);
+                }
+            });
 
             player.ChatMessage(chatMessage);
 
@@ -116,7 +116,20 @@ namespace Oxide.Plugins
                 .Replace("{player}", player.displayName)
                 .Replace("{playerID}", player.UserIDString)
                 .Replace("{position}", violationLocation);
-            LogToConsole(logMessage);
+            Puts(logMessage);
+        }
+
+        Vector3 ParseVector3(string input)
+        {
+            var parts = input.Split(' ');
+            if (parts.Length != 3)
+                return Vector3.zero;
+
+            float x, y, z;
+            if (!float.TryParse(parts[0], out x) || !float.TryParse(parts[1], out y) || !float.TryParse(parts[2], out z))
+                return Vector3.zero;
+
+            return new Vector3(x, y, z);
         }
     }
 }
