@@ -5,7 +5,7 @@ using Oxide.Core.Configuration;
 
 namespace Oxide.Plugins
 {
-    [Info("AntiInsideTerrainViolation", "Hazmad", "1.4.3")]
+    [Info("AntiInsideTerrainViolation", "Hazmad", "1.5.2")]
     [Description("Teleports players to a safe location when they violate antihack InsideTerrain.")]
     class AntiInsideTerrainViolation : RustPlugin
     {
@@ -17,10 +17,10 @@ namespace Oxide.Plugins
 
         protected override void LoadDefaultConfig()
         {
-            Config["SafeLocation"] = "0 0 0";
-            Config["ChatMessage"] =
+            Config["SafeLocation (IMPORTANT! Set valid safe location coordinate)"] = "0 0 0";
+            Config["ChatMessage (Alert message sent to player on violation)"] =
                 "Invalid terrain entry! You have been relocated to a secure area.";
-            Config["ConsoleLogMessage"] =
+            Config["ConsoleLogMessage (Alert message logged to console on violation)"] =
                 "Antihack violation: Player '{player}' ({playerID}) was teleported to a safe location. Violation Location: {position}";
             SaveConfig();
         }
@@ -36,9 +36,17 @@ namespace Oxide.Plugins
         {
             try
             {
-                safeLocation = ParseVector3(Config["SafeLocation"].ToString());
-                chatMessage = Config["ChatMessage"].ToString();
-                consoleLogMessage = Config["ConsoleLogMessage"].ToString();
+                safeLocation = ParseVector3(
+                    Config[
+                        "SafeLocation (IMPORTANT! Set valid safe location coordinate)"
+                    ].ToString()
+                );
+                chatMessage = Config[
+                    "ChatMessage (Alert message sent to player on violation)"
+                ].ToString();
+                consoleLogMessage = Config[
+                    "ConsoleLogMessage (Alert message logged to console on violation)"
+                ].ToString();
             }
             catch
             {
@@ -102,6 +110,9 @@ namespace Oxide.Plugins
             // Put the player to sleep
             player.SetPlayerFlag(BasePlayer.PlayerFlags.Sleeping, true);
 
+            // Store the player's current position before teleporting
+            var violationLocation = player.transform.position;
+
             // Teleport the player to the safe location
             player.MovePosition(safeLocation);
 
@@ -119,12 +130,10 @@ namespace Oxide.Plugins
 
             player.ChatMessage(chatMessage);
 
-            var violationLocation = player.transform.position.ToString();
-
             var logMessage = consoleLogMessage
                 .Replace("{player}", player.displayName)
                 .Replace("{playerID}", player.UserIDString)
-                .Replace("{position}", violationLocation);
+                .Replace("{position}", violationLocation.ToString());
             Puts(logMessage);
         }
 
