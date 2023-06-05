@@ -14,8 +14,9 @@ Handles antihack InsideTerrain violations by teleporting players to a specified 
 1. Download the latest release.
 2. Extract the contents into your `oxide/plugins` directory of your Rust server.
 3. Start or restart your Rust server.
-4. **IMPORTANT** Configure the SafeLocation coordinate in the newly generated configuration file and make any other desired modifications.
-5. Reload the plugin in the server console using the command `o.reload AntiInsideTerrainViolation` for the changes to take effect.
+4. **Configure the SafeLocation coordinate in the newly generated configuration file.** You can get your coordinates in game with `printpos` command in your console.
+5. Set `antihack.terrain_kill` server convar to `false` in your console. **Otherwise players will die on violation!**
+6. Reload the plugin in the server console using the command `o.reload AntiInsideTerrainViolation` for the changes to take effect.
 
 ## Configuration
 
