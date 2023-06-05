@@ -7,7 +7,7 @@ using Oxide.Core.Plugins;
 
 namespace Oxide.Plugins
 {
-    [Info("AntiInsideTerrainViolation", "Hazmad", "1.4.1")]
+    [Info("AntiInsideTerrainViolation", "Hazmad", "1.4.2")]
     [Description("Teleports players to a safe location when they violate antihack InsideTerrain.")]
     class AntiInsideTerrainViolation : RustPlugin
     {
@@ -54,7 +54,7 @@ namespace Oxide.Plugins
             {
                 Puts(
                     "Attention! Be aware that you have not specified a default secure location in the configuration file. "
-                    + "This plugin will not function unless you configure a coordinate for player teleport. "
+                        + "This plugin will not function unless you configure a coordinate for player teleport. "
                 );
             }
         }
@@ -70,9 +70,7 @@ namespace Oxide.Plugins
             return (T)Convert.ChangeType(config[key], typeof(T));
         }
 
-        void OnServerInitialized()
-        {
-        }
+        void OnServerInitialized() { }
 
         object OnPlayerViolation(BasePlayer player, AntiHackType type)
         {
@@ -93,6 +91,10 @@ namespace Oxide.Plugins
                 return;
             }
 
+            // Set the unHostileTimestamp to 0
+            player.State.unHostileTimestamp = 0;
+            player.DirtyPlayerState();
+
             // Put the player to sleep
             player.SetPlayerFlag(BasePlayer.PlayerFlags.Sleeping, true);
 
@@ -100,13 +102,16 @@ namespace Oxide.Plugins
             player.MovePosition(safeLocation);
 
             // Wake up the player after a short delay
-            timer.Once(2f, () =>
-            {
-                if (player.IsSleeping())
+            timer.Once(
+                2f,
+                () =>
                 {
-                    player.SetPlayerFlag(BasePlayer.PlayerFlags.Sleeping, false);
+                    if (player.IsSleeping())
+                    {
+                        player.SetPlayerFlag(BasePlayer.PlayerFlags.Sleeping, false);
+                    }
                 }
-            });
+            );
 
             player.ChatMessage(chatMessage);
 
@@ -125,8 +130,14 @@ namespace Oxide.Plugins
             if (parts.Length != 3)
                 return Vector3.zero;
 
-            float x, y, z;
-            if (!float.TryParse(parts[0], out x) || !float.TryParse(parts[1], out y) || !float.TryParse(parts[2], out z))
+            float x,
+                y,
+                z;
+            if (
+                !float.TryParse(parts[0], out x)
+                || !float.TryParse(parts[1], out y)
+                || !float.TryParse(parts[2], out z)
+            )
                 return Vector3.zero;
 
             return new Vector3(x, y, z);
