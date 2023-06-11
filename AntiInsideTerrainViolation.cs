@@ -1,11 +1,15 @@
 using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Text;
+using Newtonsoft.Json;
 using UnityEngine;
 using Oxide.Core;
 using Oxide.Core.Configuration;
 
 namespace Oxide.Plugins
 {
-    [Info("AntiInsideTerrainViolation", "Hazmad", "1.5.2")]
+    [Info("AntiInsideTerrainViolation", "Hazmad", "2.0.0")]
     [Description("Teleports players to a safe location when they violate antihack InsideTerrain.")]
     class AntiInsideTerrainViolation : RustPlugin
     {
@@ -13,6 +17,8 @@ namespace Oxide.Plugins
         private Vector3 safeLocation;
         private string chatMessage;
         private string consoleLogMessage;
+        private string discordWebhookURL;
+        private string discordMessageTemplate;
         private const string permissionName = "antiinsideterrainviolation.allowed";
 
         protected override void LoadDefaultConfig()
@@ -22,6 +28,8 @@ namespace Oxide.Plugins
                 "Invalid terrain entry! You have been relocated to a secure area.";
             Config["ConsoleLogMessage (Alert message logged to console on violation)"] =
                 "Antihack violation: Player '{player}' ({playerID}) was teleported to a safe location. Violation Location: {position}";
+            Config["DiscordWebhookURL"] = "https://discord.com/api/webhooks/your-webhook-url";
+            Config["DiscordMessageTemplate"] = "Antihack violation: Player '{player}' ({playerID}) was teleported to a safe location. Violation Location: {position}";
             SaveConfig();
         }
 
@@ -47,6 +55,8 @@ namespace Oxide.Plugins
                 consoleLogMessage = Config[
                     "ConsoleLogMessage (Alert message logged to console on violation)"
                 ].ToString();
+                discordWebhookURL = Config["DiscordWebhookURL"].ToString();
+                discordMessageTemplate = Config["DiscordMessageTemplate"].ToString();
             }
             catch
             {
@@ -135,6 +145,43 @@ namespace Oxide.Plugins
                 .Replace("{playerID}", player.UserIDString)
                 .Replace("{position}", violationLocation.ToString());
             Puts(logMessage);
+
+            // Send Discord webhook if URL and message template are configured
+            if (!string.IsNullOrEmpty(discordWebhookURL) && !string.IsNullOrEmpty(discordMessageTemplate))
+            {
+                SendDiscordWebhook(player, violationLocation);
+            }
+        }
+
+        void SendDiscordWebhook(BasePlayer player, Vector3 violationLocation)
+        {
+            var message = discordMessageTemplate
+                .Replace("{player}", player.displayName)
+                .Replace("{playerID}", player.UserIDString)
+                .Replace("{position}", violationLocation.ToString());
+
+            var jsonData = new Dictionary<string, string>
+            {
+                { "content", message }
+            };
+
+            var jsonString = JsonConvert.SerializeObject(jsonData);
+            var bytes = Encoding.UTF8.GetBytes(jsonString);
+
+            var request = (HttpWebRequest)WebRequest.Create(discordWebhookURL);
+            request.Method = "POST";
+            request.ContentType = "application/json";
+            request.ContentLength = bytes.Length;
+
+            using (var stream = request.GetRequestStream())
+            {
+                stream.Write(bytes, 0, bytes.Length);
+            }
+
+            using (var response = (HttpWebResponse)request.GetResponse())
+            {
+                // Optionally handle the response if needed
+            }
         }
 
         Vector3 ParseVector3(string input)
