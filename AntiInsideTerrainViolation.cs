@@ -9,7 +9,7 @@ using Oxide.Core.Configuration;
 
 namespace Oxide.Plugins
 {
-    [Info("AntiInsideTerrainViolation", "Hazmad", "2.0.0")]
+    [Info("AntiInsideTerrainViolation", "Hazmad", "2.0.1")]
     [Description("Teleports players to a safe location when they violate antihack InsideTerrain.")]
     class AntiInsideTerrainViolation : RustPlugin
     {
@@ -29,7 +29,8 @@ namespace Oxide.Plugins
             Config["ConsoleLogMessage (Alert message logged to console on violation)"] =
                 "Antihack violation: Player '{player}' ({playerID}) was teleported to a safe location. Violation Location: {position}";
             Config["DiscordWebhookURL"] = "https://discord.com/api/webhooks/your-webhook-url";
-            Config["DiscordMessageTemplate"] = "Antihack violation: Player '{player}' ({playerID}) was teleported to a safe location. Violation Location: {position}";
+            Config["DiscordMessageTemplate"] =
+                "Antihack violation: Player '{player}' ({playerID}) was teleported to a safe location. Violation Location: {position}";
             SaveConfig();
         }
 
@@ -147,7 +148,10 @@ namespace Oxide.Plugins
             Puts(logMessage);
 
             // Send Discord webhook if URL and message template are configured
-            if (!string.IsNullOrEmpty(discordWebhookURL) && !string.IsNullOrEmpty(discordMessageTemplate))
+            if (
+                !string.IsNullOrEmpty(discordWebhookURL)
+                && !string.IsNullOrEmpty(discordMessageTemplate)
+            )
             {
                 SendDiscordWebhook(player, violationLocation);
             }
@@ -160,9 +164,10 @@ namespace Oxide.Plugins
                 .Replace("{playerID}", player.UserIDString)
                 .Replace("{position}", violationLocation.ToString());
 
-            var jsonData = new Dictionary<string, string>
+            var jsonData = new Dictionary<string, object>
             {
-                { "content", message }
+                { "content", message },
+                { "avatar_url", "https://i.imgur.com/murGQta.png" }
             };
 
             var jsonString = JsonConvert.SerializeObject(jsonData);
