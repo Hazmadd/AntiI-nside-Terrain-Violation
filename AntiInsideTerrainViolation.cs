@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using System.IO;
 using Newtonsoft.Json;
 using UnityEngine;
 using Oxide.Core;
@@ -9,7 +10,7 @@ using Oxide.Core.Configuration;
 
 namespace Oxide.Plugins
 {
-    [Info("AntiInsideTerrainViolation", "Hazmad", "2.0.1")]
+    [Info("AntiInsideTerrainViolation", "Hazmad", "3.0.0")]
     [Description("Teleports players to a safe location when they violate antihack InsideTerrain.")]
     class AntiInsideTerrainViolation : RustPlugin
     {
@@ -148,10 +149,7 @@ namespace Oxide.Plugins
             Puts(logMessage);
 
             // Send Discord webhook if URL and message template are configured
-            if (
-                !string.IsNullOrEmpty(discordWebhookURL)
-                && !string.IsNullOrEmpty(discordMessageTemplate)
-            )
+            if (!string.IsNullOrEmpty(discordWebhookURL) && !string.IsNullOrEmpty(discordMessageTemplate))
             {
                 SendDiscordWebhook(player, violationLocation);
             }
@@ -178,14 +176,35 @@ namespace Oxide.Plugins
             request.ContentType = "application/json";
             request.ContentLength = bytes.Length;
 
-            using (var stream = request.GetRequestStream())
+            try
             {
-                stream.Write(bytes, 0, bytes.Length);
-            }
+                using (var stream = request.GetRequestStream())
+                {
+                    stream.Write(bytes, 0, bytes.Length);
+                }
 
-            using (var response = (HttpWebResponse)request.GetResponse())
+                using (var response = (HttpWebResponse)request.GetResponse())
+                {
+                    // Optionally handle the response if needed
+                }
+            }
+            catch (WebException ex)
             {
-                // Optionally handle the response if needed
+                using (var errorResponse = (HttpWebResponse)ex.Response)
+                {
+                    if (errorResponse != null)
+                    {
+                        using (var reader = new StreamReader(errorResponse.GetResponseStream()))
+                        {
+                            string errorText = reader.ReadToEnd();
+                            Debug.LogError($"Discord webhook request failed: {errorText}");
+                        }
+                    }
+                    else
+                    {
+                        Debug.LogError("Discord webhook request failed with no response.");
+                    }
+                }
             }
         }
 
