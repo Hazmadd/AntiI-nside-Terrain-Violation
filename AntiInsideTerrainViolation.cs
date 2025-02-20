@@ -118,7 +118,7 @@ namespace Oxide.Plugins
             player.State.unHostileTimestamp = 0;
             player.DirtyPlayerState();
             player.ClientRPCPlayer<float>(null, player, "SetHostileLength", 0f);
-
+            // SetPlayerFlag for sleeping since player.StartSleeping() doesn't reset velocity
             // Put the player to sleep
             player.SetPlayerFlag(BasePlayer.PlayerFlags.Sleeping, true);
 
@@ -127,8 +127,8 @@ namespace Oxide.Plugins
 
             // Teleport the player to the safe location
             player.MovePosition(safeLocation);
-
-            // Wake up the player after a short delay
+            // SetPlayerFlag for sleeping since player.EndSleeping() doesn't reset velocity
+            // Wake up the player after a short delay to ensure velocity state is null
             timer.Once(
                 2f,
                 () =>
